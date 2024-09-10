@@ -144,26 +144,18 @@
                 {
                     <div class="swiper-slide">
                         <div class="card">
-                            <a href="car-single.html"><img src="images/@car.Make-@car.Model" class="card-img-top" alt="..."></a>
+                           @*  <a href="@Url.Action("Details", new { id = car.Id })" class="btn btn-secondary">View Details *@<img src="images/@car.Make-@car.Model" class="card-img-top" alt="...">
                             <div class="card-body p-4">
-                                <a href="car-single.html">
+                                <a href="@Url.Action("Details", new { id = car.Id })" >@car.Make
                                     <h4 class="card-title">@car.Make @car.Model (@car.Year)</h4>
                                 </a>
                                 <div class="card-text">
-                                    <ul class="d-flex list-unstyled">
-                                        <li class="rental-list">Sports</li>
-                                        <li class="rental-list"><img src="images/dot.png" class="px-3" alt="image"></li>
-                                        <li class="rental-list">Auto</li>
-                                        <li class="rental-list"><img src="images/dot.png" class="px-3" alt="image"></li>
-                                        <li class="rental-list">4 Passengers</li>
-                                        <li class="rental-list"><img src="images/dot.png" class="px-3" alt="image"></li>
-                                        <li class="rental-list display-small">Diesel</li>
-                                    </ul>
+                                   @car.Model
                                 </div>
                                 <hr>
                                 <div class="d-flex justify-content-between">
                                     <h3 class="pt-2">${@car.DailyRate} <span class="rental-price">/day</span></h3>
-                                    <a href="car-single.html" class="btn btn-primary">Rent now</a>
+                                    <a href="@Url.Action("RentNow", "Home", new { id = car.Id })">Kirala</a>
                                 </div>
                             </div>
                         </div>
