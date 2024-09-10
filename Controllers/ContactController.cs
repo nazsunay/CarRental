@@ -9,24 +9,25 @@ namespace CarRental.Controllers
         {
             return View();
         }
-        [HttpGet]
         public IActionResult Contact()
         {
-            return View(new ContactViewModel());
+            var model = new ContactViewModel(); // Modeli başlatın veya verileri buraya yükleyin
+            return View(model);
         }
+
 
         // POST: /Contact/
         [HttpPost]
-        public async Task<IActionResult> Contact(ContactViewModel model)
+        public IActionResult Contact(ContactViewModel model)
         {
             if (ModelState.IsValid)
             {
-                // Mesajı işleme kodunu buraya ekleyin (e-posta gönderimi, veri tabanına kaydetme vb.)
-
+                // Veriyi işleme veya göndermeyi yapın
                 ViewBag.Message = "Mesajınız başarıyla gönderildi!";
-                return View(new ContactViewModel()); // Formu temizlemek için yeni bir model gönderir
+                return View(new ContactViewModel()); // Boş model veya yeni veri ile dönün
             }
-            return View(model);
+            return View(model); // Modeli geri dönün
         }
+
     }
 }

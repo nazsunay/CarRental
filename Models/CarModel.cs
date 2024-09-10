@@ -12,7 +12,8 @@
         public decimal DailyRate { get; set; }
         public bool IsAvailable { get; set; }
         public string ImgUrl { get; set; }
-       
+        public IFormFile Image { get; set; }
+
     }
     public class Customer
     {
