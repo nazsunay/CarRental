@@ -134,233 +134,63 @@
 
 <!-- rental section start  -->
 <!-- rental section start  -->
+
+
 <section id="rental" class="position-relative">
     <div class="container my-5 py-5">
         <h2 class="text-center my-5">Cars for <span class="text-primary"> rental </span></h2>
 
         <div class="swiper rental-swiper mb-5">
             <div class="swiper-wrapper">
+                @if (Model == null || !Model.Any())
+                {
+                    <p>Araç bulunamadı.</p>
+                }
+                else
+                {
+                    foreach (var car in Model)
+                    {
+                        <div class="swiper-slide">
+                            <div class="card">
+                                
+                                <img src="@car.ImgUrl" class="card-img-top img-fluid" alt="...">
+                                <div class="card-body p-4">
+                                    <a href="car-single.html">
+                                        <h4 class="card-title">@car.Make @car.Model</h4>
+                                    </a>
 
-                <div class="swiper-slide">
-                    <div class="card">
-                        <a href="car-single.html"><img src="images/car1.png" class="card-img-top" alt="..."></a>
-                        <div class="card-body p-4">
-                            <a href="car-single.html">
-                                <h4 class="card-title">BMW x3</h4>
-                            </a>
-                            <div class="card-text ">
-                                <ul class="d-flex list-unstyled">
-                                    <li class="rental-list">
-                                        Sports
-                                    </li>
-                                    <li class="rental-list">
-                                        <img src="images/dot.png" class="px-3" alt="image">
-                                    </li>
-                                    <li class="rental-list"> Auto</li>
-                                    <li class="rental-list">
-                                        <img src="images/dot.png" class="px-3" alt="image">
-                                    </li>
-                                    <li class="rental-list"> 4 Passengers </li>
-                                    <li class="rental-list">
-                                        <img src="images/dot.png" class="px-3" alt="image">
-                                    </li>
-                                    <li class="rental-list display-small"> Diesel </li>
-                                </ul>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between">
-                                <h3 class="pt-2">$369 <span class="rental-price">/day</span></h3>
-                                <a href="car-single.html" class="btn btn-primary">Şimdi Kirala</a>
-                            </div>
+                                    <div class="card-text ">
+                                        <ul class="d-flex list-unstyled">
+                                            <li class="rental-list">@car.Model</li>
+                                            <li class="rental-list">
+                                                <img src="images/dot.png" class="px-3" alt="image">
+                                            </li>
+                                            <li class="rental-list"> Auto</li>
+                                            <li class="rental-list">
+                                                <img src="images/dot.png" class="px-3" alt="image">
+                                            </li>
+                                            <li class="rental-list"> 4 Passengers </li>
+                                            <li class="rental-list">
+                                                <img src="images/dot.png" class="px-3" alt="image">
+                                            </li>
+                                            <li class="rental-list display-small"> @car.Model.</li>
+                                        </ul>
+                                    </div>
 
+                                    <div class="d-flex justify-content-between">
+                                        <h3 class="pt-2">$@car.DailyRate <span class="rental-price">/day</span></h3>
+                                        <a href="car-single.html" class="btn btn-primary">Şimdi Kirala</a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="card">
-                        <a href="car-single.html"><img src="images/car2.png" class="card-img-top" alt="..."></a>
-                        <div class="card-body p-4">
-                            <a href="car-single.html">
-                                <h4 class="card-title">BMW M2</h4>
-                            </a>
-                            <div class="card-text ">
-                                <ul class="d-flex list-unstyled">
-                                    <li class="rental-list">
-                                        Sports
-                                    </li>
-                                    <li class="rental-list">
-                                        <img src="images/dot.png" class="px-3" alt="image">
-                                    </li>
-                                    <li class="rental-list"> Auto</li>
-                                    <li class="rental-list">
-                                        <img src="images/dot.png" class="px-3" alt="image">
-                                    </li>
-                                    <li class="rental-list"> 4 Passengers </li>
-                                    <li class="rental-list">
-                                        <img src="images/dot.png" class="px-3" alt="image">
-                                    </li>
-                                    <li class="rental-list display-small"> Diesel </li>
-                                </ul>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between">
-                                <h3 class="pt-2">$369 <span class="rental-price">/Günlük</span></h3>
-                                <a href="car-single.html" class="btn btn-primary">Şimdi Kirala </a>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="card">
-                        <a href="car-single.html"><img src="images/car3.png" class="card-img-top" alt="..."></a>
-                        <div class="card-body p-4">
-                            <a href="car-single.html">
-                                <h4 class="card-title">Ford explorer</h4>
-                            </a>
-                            <div class="card-text ">
-                                <ul class="d-flex list-unstyled">
-                                    <li class="rental-list">
-                                        Sports
-                                    </li>
-                                    <li class="rental-list">
-                                        <img src="images/dot.png" class="px-3" alt="image">
-                                    </li>
-                                    <li class="rental-list"> Auto</li>
-                                    <li class="rental-list">
-                                        <img src="images/dot.png" class="px-3" alt="image">
-                                    </li>
-                                    <li class="rental-list"> 4 Passengers </li>
-                                    <li class="rental-list">
-                                        <img src="images/dot.png" class="px-3" alt="image">
-                                    </li>
-                                    <li class="rental-list display-small"> Diesel </li>
-                                </ul>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between">
-                                <h3 class="pt-2">$369 <span class="rental-price">/Günlük</span></h3>
-                                <a href="car-single.html" class="btn btn-primary">Şimdi Kirala</a>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="card">
-                        <a href="car-single.html"><img src="images/car1.png" class="card-img-top" alt="..."></a>
-                        <div class="card-body p-4">
-                            <a href="car-single.html">
-                                <h4 class="card-title">BMW x3</h4>
-                            </a>
-                            <div class="card-text ">
-                                <ul class="d-flex list-unstyled">
-                                    <li class="rental-list">
-                                        Sports
-                                    </li>
-                                    <li class="rental-list">
-                                        <img src="images/dot.png" class="px-3" alt="image">
-                                    </li>
-                                    <li class="rental-list"> Auto</li>
-                                    <li class="rental-list">
-                                        <img src="images/dot.png" class="px-3" alt="image">
-                                    </li>
-                                    <li class="rental-list"> 4 Passengers </li>
-                                    <li class="rental-list">
-                                        <img src="images/dot.png" class="px-3" alt="image">
-                                    </li>
-                                    <li class="rental-list display-small"> Diesel </li>
-                                </ul>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between">
-                                <h3 class="pt-2">$369 <span class="rental-price">/Günlük</span></h3>
-                                <a href="car-single.html" class="btn btn-primary">Şimdi Kirala </a>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="card">
-                        <a href="car-single.html"><img src="images/car2.png" class="card-img-top" alt="..."></a>
-                        <div class="card-body p-4">
-                            <a href="car-single.html">
-                                <h4 class="card-title">BMW M2</h4>
-                            </a>
-                            <div class="card-text ">
-                                <ul class="d-flex list-unstyled">
-                                    <li class="rental-list">
-                                        Sports
-                                    </li>
-                                    <li class="rental-list">
-                                        <img src="images/dot.png" class="px-3" alt="image">
-                                    </li>
-                                    <li class="rental-list"> Auto</li>
-                                    <li class="rental-list">
-                                        <img src="images/dot.png" class="px-3" alt="image">
-                                    </li>
-                                    <li class="rental-list"> 4 Passengers </li>
-                                    <li class="rental-list">
-                                        <img src="images/dot.png" class="px-3" alt="image">
-                                    </li>
-                                    <li class="rental-list display-small"> Diesel </li>
-                                </ul>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between">
-                                <h3 class="pt-2">$369 <span class="rental-price">/Günlük</span></h3>
-                                <a href="car-single.html" class="btn btn-primary">Şimdi Kirala </a>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="card">
-                        <a href="car-single.html"><img src="images/car3.png" class="card-img-top" alt="..."></a>
-                        <div class="card-body p-4">
-                            <a href="car-single.html">
-                                <h4 class="card-title">Ford explorer</h4>
-                            </a>
-                            <div class="card-text ">
-                                <ul class="d-flex list-unstyled">
-                                    <li class="rental-list">
-                                        Sports
-                                    </li>
-                                    <li class="rental-list">
-                                        <img src="images/dot.png" class="px-3" alt="image">
-                                    </li>
-                                    <li class="rental-list"> Auto</li>
-                                    <li class="rental-list">
-                                        <img src="images/dot.png" class="px-3" alt="image">
-                                    </li>
-                                    <li class="rental-list"> 4 Passengers </li>
-                                    <li class="rental-list">
-                                        <img src="images/dot.png" class="px-3" alt="image">
-                                    </li>
-                                    <li class="rental-list display-small"> Diesel </li>
-                                </ul>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between">
-                                <h3 class="pt-2">$369 <span class="rental-price">/Günlük</span></h3>
-                                <a href="car-single.html" class="btn btn-primary">Şimdi Kirala </a>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
+                    }
+                }
             </div>
-
         </div>
-
     </div>
-
-
-
 </section>
+
 
 <!-- testimonial section start  -->
 <section id="testimonial" class=" position-relative">
