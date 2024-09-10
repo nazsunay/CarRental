@@ -29,4 +29,10 @@
         public DateTime ReturnDate { get; set; }
         public decimal TotalCost { get; set; }
     }
+
+    public class CustomerLoginModel
+    {
+        public string Password { get; set; }
+        public string Email { get; set; }
+    }
 }
