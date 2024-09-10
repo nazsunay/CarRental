@@ -32,7 +32,30 @@ namespace CarRental.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-       
+
+        [HttpGet]
+        public IActionResult Contact()
+        {
+            // Boþ bir ContactViewModel nesnesi oluþturuluyor ve View'e geçiliyor
+            return View(new ContactViewModel());
+        }
+
+
+        [HttpPost]
+        public IActionResult Contact(ContactViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Verileri iþleme (örneðin, e-posta gönderme)
+
+                ViewBag.Message = "Mesajýnýz baþarýyla gönderildi.";
+                return View(model);
+            }
+
+            // Model geçerli deðilse, View'i modelle birlikte döndür
+            return View(model);
+        }
+
 
     }
 }
