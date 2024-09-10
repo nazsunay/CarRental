@@ -1,0 +1,15 @@
+﻿<script>
+    function deleteCar(id) {
+        $.ajax({
+            type: "DELETE",
+            url: "/Cars/Delete/" + id,
+            success: function (response) {
+                alert(response.msg);
+                location.reload();
+            },
+            error: function (xhr) {
+                alert("Araç silinirken bir hata oluştu.");
+            }
+        });
+    }
+</script>
