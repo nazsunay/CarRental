@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Net.Mail;
 using System.Net;
 using Newtonsoft.Json;
+using System.Reflection;
 
 namespace CarRental.Controllers
 {
@@ -21,25 +22,12 @@ namespace CarRental.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public IActionResult Index(int? id)
+        public IActionResult Index()
         {
             using var connection = new SqlConnection(connectionString);
-
-            if (id != null)
-            {
-                var car = connection.Query<Car>("SELECT * FROM Cars WHERE Id = @Id", new { Id = id.Value }).FirstOrDefault();
-
-                if (car == null)
-                {
-                    return NotFound(new { msg = "Araç bulunamadý." });
-                }
-
-                return Json(car);
-            }
-
             var cars = connection.Query<Car>("SELECT * FROM Cars").ToList();
-            return View(cars); // Tüm araçlar View'da döndürülür
+    
+            return View(cars);
         }
         public IActionResult Details(int id)
         {
