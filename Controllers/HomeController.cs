@@ -1,6 +1,8 @@
 using CarRental.Models;
+using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using RestSharp;
+using System.Data.SqlClient;
 using System.Diagnostics;
 
 namespace CarRental.Controllers
@@ -16,10 +18,27 @@ namespace CarRental.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        [HttpGet]
+        public IActionResult Index(int? id)
         {
-            return View();
+            using var connection = new SqlConnection(connectionString);
+
+            if (id != null)
+            {
+                var car = connection.Query<Car>("SELECT * FROM Cars WHERE Id = @Id", new { Id = id.Value }).FirstOrDefault();
+
+                if (car == null)
+                {
+                    return NotFound(new { msg = "Araç bulunamadý." });
+                }
+
+                return Json(car);
+            }
+
+            var cars = connection.Query<Car>("SELECT * FROM Cars").ToList();
+            return View(cars); // Tüm araçlar View'da döndürülür
         }
+
 
         public IActionResult Privacy()
         {
