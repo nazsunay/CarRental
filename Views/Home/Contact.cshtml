@@ -151,43 +151,68 @@
         </div>
     </nav>
 
-    @RenderBody()
+    <div class="container my-5">
+        <div class="header text-center">
+            <h1>Bizimle İletişime Geçin</h1>
+        </div>
+        <div class="form-container my-4">
+            <h2 class="text-center">İletişim Formu</h2>
+            @if (ViewBag.Message != null)
+            {
+                <div class="alert alert-success" role="alert">
+                    @ViewBag.Message
+                </div>
+            }
+            <form asp-action="Contact" method="post">
+                <div class="form-group mb-3">
+                    <label for="name" class="form-label">Adınız:</label>
+                    <input type="text" id="name" name="Name" value="@Model.Name" class="form-control" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="email" class="form-label">E-posta Adresiniz:</label>
+                    <input type="email" id="email" name="Email" value="@Model.Email" class="form-control" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="message" class="form-label">Mesajınız:</label>
+                    <textarea id="message" name="Message" rows="5" class="form-control" required>@Model.Message</textarea>
+                </div>
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-primary">Gönder</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Footer Section Starts -->
     <section id="footer">
         <div class="container footer-container mt-5">
-            <footer class="row row-cols-1 row-cols-sm-2 row-cols-md-5 my-5 py-5 ">
-                <div class="col-md-4 mt-5 mt-md-0 ">
+            <footer class="row row-cols-1 row-cols-sm-2 row-cols-md-5 my-5 py-5">
+                <div class="col-md-4 mt-5 mt-md-0">
                     <img src="images/logo.png" alt="image">
                     <p class="py-3">
                         Hayalinizdeki Araç Sizi Bekliyor. Konforlu ve Sorunsuz Bir Yolculuk İçin Hemen Kiralayın!
                     </p>
-                    <div class="d-flex align-items-center ">
+                    <div class="d-flex align-items-center">
                         <a href="#" target="_blank">
-                            <iconify-icon class="social-link-icon pe-4"
-                                          icon="mdi:facebook"></iconify-icon>
+                            <iconify-icon class="social-link-icon pe-4" icon="mdi:facebook"></iconify-icon>
                         </a>
                         <a href="#" target="_blank">
-                            <iconify-icon class="social-link-icon pe-4"
-                                          icon="mdi:twitter"></iconify-icon>
+                            <iconify-icon class="social-link-icon pe-4" icon="mdi:twitter"></iconify-icon>
                         </a>
                         <a href="#" target="_blank">
-                            <iconify-icon class="social-link-icon pe-4"
-                                          icon="mdi:instagram"></iconify-icon>
+                            <iconify-icon class="social-link-icon pe-4" icon="mdi:instagram"></iconify-icon>
                         </a>
                         <a href="#" target="_blank">
-                            <iconify-icon class="social-link-icon pe-4"
-                                          icon="mdi:linkedin"></iconify-icon>
+                            <iconify-icon class="social-link-icon pe-4" icon="mdi:linkedin"></iconify-icon>
                         </a>
                         <a href="#" target="_blank">
-                            <iconify-icon class="social-link-icon pe-4"
-                                          icon="mdi:youtube"></iconify-icon>
+                            <iconify-icon class="social-link-icon pe-4" icon="mdi:youtube"></iconify-icon>
                         </a>
                     </div>
                 </div>
 
                 <div class="col-md-7 offset-md-1 mt-5">
-                    <ul class="footer-nav list-unstyled ">
+                    <ul class="footer-nav list-unstyled">
                         <li class="nav-item me-2 mb-3">
                             <a class="nav-link px-4" aria-current="page" href="#">Anasayfa</a>
                         </li>
@@ -213,9 +238,9 @@
                     <p>© 2023 GoCar - All rights reserved</p>
                 </div>
                 <div class="col-md-6 d-flex align-items-center justify-content-end">
-                    <p class="">
-                        © 2023 Free Template By:<a href="https://templatesjungle.com/" class="website-link"
-                                                   target="_blank"> <b><u>TemplatesJungle</u></b></a>
+                    <p>
+                        © 2023 Free Template By: <a href="https://templatesjungle.com/" class="website-link"
+                                                    target="_blank"> <b><u>TemplatesJungle</u></b></a>
                     </p>
                 </div>
             </footer>
