@@ -29,4 +29,5 @@
         public DateTime ReturnDate { get; set; }
         public decimal TotalCost { get; set; }
     }
+
 }
