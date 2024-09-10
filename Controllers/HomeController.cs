@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using RestSharp;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Net.Mail;
+using System.Net;
+using Newtonsoft.Json;
 
 namespace CarRental.Controllers
 {
@@ -38,43 +41,90 @@ namespace CarRental.Controllers
             var cars = connection.Query<Car>("SELECT * FROM Cars").ToList();
             return View(cars); // Tüm araçlar View'da döndürülür
         }
-
-
-        public IActionResult Privacy()
+        public IActionResult Details(int id)
         {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-
-        [HttpGet]
-        public IActionResult Contact()
-        {
-            // Boþ bir ContactViewModel nesnesi oluþturuluyor ve View'e geçiliyor
-            return View(new ContactViewModel());
-        }
-
-
-        [HttpPost]
-        public IActionResult Contact(ContactViewModel model)
-        {
-            if (ModelState.IsValid)
+            using (var connection = new SqlConnection(connectionString))
             {
-                // Verileri iþleme (örneðin, e-posta gönderme)
+                var car = connection.QuerySingleOrDefault<Car>("SELECT * FROM Cars WHERE Id = @Id", new { Id = id });
 
-                ViewBag.Message = "Mesajýnýz baþarýyla gönderildi.";
-                return View(model);
+                if (car == null)
+                {
+                    return NotFound(); // Eðer araba bulunamazsa 404 döndür
+                }
+
+                return View(car); // Bulunan arabayý detay görünümüne gönder
+            }
+        }
+
+        public IActionResult RentNow(int id)
+        {
+            using (var connection = new SqlConnection(connectionString))
+            {
+                var car = connection.QuerySingleOrDefault<Car>("SELECT * FROM Cars WHERE Id = @Id", new { Id = id });
+
+                if (car == null)
+                {
+                    return NotFound(); // Eðer araba bulunamazsa 404 döndür
+                }
+
+                // Kullanýcý bilgilerini al (örneðin, oturumdan)
+                var customer = GetCurrentCustomer(); // Oturumdaki kullanýcý bilgilerini al
+
+                if (customer == null)
+                {
+                    return RedirectToAction("Login", "Index"); // Kullanýcý giriþi yapýlmamýþsa giriþ sayfasýna yönlendir
+                }
+
+                // E-posta gönderme bilgilerini ayarlayýn
+                ViewBag.Subject = "Araba Kiralama Bilgisi";
+                ViewBag.Body = $"Merhaba {customer.Name},<br/> {car.Make} {car.Model} kiralama iþleminiz baþarýyla gerçekleþmiþtir.";
+                ViewBag.Return = "Index"; // Geri dönüþ sayfasý
+
+                // E-posta gönder
+                SendMail(new Customer { Email = customer.Email, Name = customer.Name });
+
+                return View(car); // Bulunan arabayý detay görünümüne gönder
+            }
+        }
+        public IActionResult SendMail(Customer customer)
+        {
+            var client = new SmtpClient("smtp.eu.mailgun.org", 587)
+            {
+                Credentials = new NetworkCredential("postmaster@bildirim.nazlisunay.com.tr", "3b212cffce4a231e162ecd83abce45ea-911539ec-debf1d4c"),
+                EnableSsl = true
+            };
+
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress("bildirim@rentalCar.com.tr", "rentalCar.com"),
+                Subject = ViewBag.Subject,
+                Body = ViewBag.Body,
+                IsBodyHtml = true,
+            };
+
+            mailMessage.ReplyToList.Add(customer.Email);
+            mailMessage.To.Add(new MailAddress(customer.Email, customer.Name));
+
+            client.Send(mailMessage);
+            return RedirectToAction("Index"); // Geri dönüþ sayfasý
+        }
+        private Customer GetCurrentCustomer()
+        {
+            // Session'dan müþteri bilgilerini al
+            var customerJson = HttpContext.Session.GetString("CurrentCustomer");
+
+            if (string.IsNullOrEmpty(customerJson))
+            {
+                return null; // Eðer müþteri bilgisi yoksa null döndür
             }
 
-            // Model geçerli deðilse, View'i modelle birlikte döndür
-            return View(model);
+            // JSON'dan Customer nesnesine dönüþtür
+            return JsonConvert.DeserializeObject<Customer>(customerJson);
         }
+
 
 
     }
 }
+        
+

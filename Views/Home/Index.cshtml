@@ -1,4 +1,7 @@
-﻿@{
+﻿@using CarRental.Controllers
+@using static CarRental.Controllers.HomeController
+@model List<Car>
+@{
     ViewData["Title"] = "GoCar Page";
 }
 
@@ -130,12 +133,10 @@
 </section>
 
 <!-- rental section start  -->
+<!-- rental section start  -->
 <section id="rental" class="position-relative">
     <div class="container my-5 py-5">
-        <h2 class=" text-center my-5">Kiralık <span class="text-primary"> Araçlar </span> </h2>
-
-        <div class="swiper-button-next rental-swiper-next  rental-arrow position-absolute"></div>
-        <div class="swiper-button-prev rental-swiper-prev rental-arrow position-absolute"></div>
+        <h2 class="text-center my-5">Cars for <span class="text-primary"> rental </span></h2>
 
         <div class="swiper rental-swiper mb-5">
             <div class="swiper-wrapper">
