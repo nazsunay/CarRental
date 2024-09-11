@@ -74,7 +74,7 @@ namespace CarRental.Controllers
                         new { Name = model.Name, Email = model.Email, PhoneNumber = model.PhoneNumber, Password=model.Password });
 
                     // Başarılı kayıt sonrası yönlendirme (örneğin, giriş sayfasına)
-                    return RedirectToAction("Login");
+                    return RedirectToAction("Index","Login");
                 }
             }
 
