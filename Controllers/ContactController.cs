@@ -20,6 +20,7 @@ namespace CarRental.Controllers
         [HttpPost]
         public IActionResult Contact(ContactViewModel model)
         {
+
             if (ModelState.IsValid)
             {
                 // Veriyi işleme veya göndermeyi yapın
