@@ -1,10 +1,10 @@
 ﻿@using CarRental.Controllers
 @using static CarRental.Controllers.HomeController
 @model List<Car>
+
 @{
     ViewData["Title"] = "GoCar Page";
 }
-
 @* //Home *@
 <!-- hero section start  -->
 <section id="hero" class=" position-relative overflow-hidden">
@@ -25,112 +25,48 @@
 </section>
 @* Kiralama kısmı *@
 <!-- search section start  -->
+
+
 <section id="search">
     <div class="container search-block p-5">
 
-        <form class="row">
+        <!-- Formu güncelleyin -->
+        <form class="row" method="get" asp-controller="Home" asp-action="Index">
             <div class="col-12 col-md-6 col-lg-3 mt-4 mt-lg-0">
-                <label for="vehicle" class="label-style text-capitalize form-label">Araç Tipi</label>
-                <div class="input-group date ">
-                    <!-- <input type="text" class="form-control p-3 " id="vehicle" placeholder="Select Car Group" /> -->
-                    <select class="form-select form-control p-3" id="vehicle" aria-label="Default select example"
-                            style="background-image: none;">
-                        <option selected>Araç Tipini Seçiniz</option>
-                        <option value="1">BMW x3</option>
-                        <option value="2">BMW M2</option>
-                        <option value="3">Ford explorer</option>
-                        <option value="4">Ferrari</option>
-                        <option value="5">Mercedes-Benz</option>
-                        <option value="6">Sports car</option>
-                        <option value="7">Tesla</option>
+                <label for="make" class="label-style text-capitalize form-label">Araç Tipi</label>
+                <div class="input-group date">
+                    <!-- Formun select elementinin name ve id değerlerini ayarlayın -->
+                    <select class="form-select form-control p-3" id="make" name="make" aria-label="Default select example" style="background-image: none;">
+                        <option value="" selected>Araç Tipini Seçiniz</option>
+                        @if (ViewBag.Models != null)
+                        {
+                            foreach (var make in ViewBag.Models as List<string>)
+                            {
+                                <option value="@make">@make</option>
+                            }
+                        }
                     </select>
-                    <span class="search-icon-position position-absolute p-3 ">
+                    <span class="search-icon-position position-absolute p-3">
                         <iconify-icon class="search-icons" icon="solar:bus-outline"></iconify-icon>
                     </span>
                 </div>
             </div>
             <div class="col-12 col-md-6 col-lg-3 mt-4 mt-lg-0">
-                <label for="location" class="label-style text-capitalize form-label">Teslim Alınacak Konum</label>
-                <div class="input-group date">
-                    <input type="text" class="form-control p-3 position-relative" id="location"
-                           placeholder="Havaalanında veya herhangi bir yerde" />
-                    <span class="search-icon-position position-absolute p-3 ">
-                        <iconify-icon class="search-icons" icon="solar:map-arrow-square-outline"></iconify-icon>
-                    </span>
-
-
-                </div>
-            </div>
-            <div class="col-12 col-md-6 col-lg-3 mt-4 mt-lg-0">
-                <label for="pick-up-date" class="label-style text-capitalize form-label">Teslim Alınacak Tarih</label>
-                <div class="input-group date" id="datepicker1">
-                    <input type="text" class="form-control p-3" id="pick-up-date" />
-
-                    <span class="input-group-append">
-                        <span class="search-icon-position position-absolute p-3">
-                            <iconify-icon class="search-icons" icon="solar:calendar-broken"></iconify-icon>
-                        </span>
-                    </span>
-
-                </div>
-            </div>
-            <div class="col-12 col-md-6 col-lg-3 mt-4 mt-lg-0">
-                <label for="return-date" class="label-style text-capitalize form-label">Teslim Tarihi</label>
-                <div class="input-group date" id="datepicker2">
-                    <input type="text" class="form-control p-3" id="return-date" />
-
-                    <span class="input-group-append">
-                        <span class="search-icon-position position-absolute p-3">
-                            <iconify-icon class="search-icons" icon="solar:calendar-broken"></iconify-icon>
-                        </span>
-                    </span>
-
+                <div class="d-grid gap-2">
+                    <!-- Butonu submit türünde ayarlayın -->
+                    <button class="btn btn-primary" type="submit">Araç Bul</button>
                 </div>
             </div>
         </form>
 
-        <div class="d-grid gap-2 mt-4">
-            <button class="btn btn-primary " type="button">Araç Bul</button>
-        </div>
+        <!-- Filtrelenmiş sonuçları kaldırdık -->
     </div>
-
 </section>
+
+
+
 
 <!-- process section start  -->
-<section id="process">
-    <div class=" process-content container">
-        <h2 class=" text-center my-5 pb-5">Kiralama<span class="text-primary"> Sürecimiz </span> </h2>
-        <hr class="progress-line">
-        <div class="row process-block">
-            <div class="col-6 col-lg-3 text-start my-4">
-                <div class="bullet"></div>
-                <h5 class="text-uppercase mt-5"> Bir Araç Seçin</h5>
-
-            </div>
-
-            <div class="col-6 col-lg-3 text-start my-4">
-                <div class="bullet"></div>
-                <h5 class="text-uppercase mt-5"> Konum & Tarih Seçin</h5>
-
-            </div>
-
-            <div class="col-6 col-lg-3 text-start my-4">
-                <div class="bullet"></div>
-                <h5 class="text-uppercase mt-5"> Aracınızı Ayırtın</h5>
-
-            </div>
-
-            <div class="col-6 col-lg-3 text-start my-4">
-                <div class="bullet"></div>
-                <h5 class="text-uppercase mt-5"> Süreci Tamamlayın</h5>
-
-            </div>
-
-        </div>
-
-
-    </div>
-</section>
 
 <!-- rental section start  -->
 <!-- rental section start  -->
@@ -192,6 +128,40 @@
     </div>
 </section>
 
+<section id="process">
+    <div class=" process-content container">
+        <h2 class=" text-center my-5 pb-5">Kiralama<span class="text-primary"> Sürecimiz </span> </h2>
+        <hr class="progress-line">
+        <div class="row process-block">
+            <div class="col-6 col-lg-3 text-start my-4">
+                <div class="bullet"></div>
+                <h5 class="text-uppercase mt-5"> Bir Araç Seçin</h5>
+
+            </div>
+
+            <div class="col-6 col-lg-3 text-start my-4">
+                <div class="bullet"></div>
+                <h5 class="text-uppercase mt-5"> Konum & Tarih Seçin</h5>
+
+            </div>
+
+            <div class="col-6 col-lg-3 text-start my-4">
+                <div class="bullet"></div>
+                <h5 class="text-uppercase mt-5"> Aracınızı Ayırtın</h5>
+
+            </div>
+
+            <div class="col-6 col-lg-3 text-start my-4">
+                <div class="bullet"></div>
+                <h5 class="text-uppercase mt-5"> Süreci Tamamlayın</h5>
+
+            </div>
+
+        </div>
+
+
+    </div>
+</section>
 
 <!-- testimonial section start  -->
 <section id="testimonial" class=" position-relative">

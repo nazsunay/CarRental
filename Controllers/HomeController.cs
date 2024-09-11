@@ -22,13 +22,24 @@ namespace CarRental.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string make = "")
         {
             using var connection = new SqlConnection(connectionString);
-            var cars = connection.Query<Car>("SELECT * FROM Cars").ToList();
-    
-            return View(cars);
+
+            // Araçlarý almak için sorgu
+            var carQuery = "SELECT * FROM Cars WHERE Make LIKE @Make";
+            var cars = connection.Query<Car>(carQuery, new { Make = $"%{make}%" }).ToList();
+
+            // Araç markalarýný almak için sorgu
+            var makeQuery = "SELECT DISTINCT Make FROM Cars";
+            var makes = connection.Query<string>(makeQuery).ToList();
+
+            // Araçlarý ve markalarý view'a gönder
+            ViewBag.Models = makes;
+
+            return View(cars); // Filtrelenmiþ veya tüm araçlarý döndür
         }
+
         public IActionResult Details(int id)
         {
             using (var connection = new SqlConnection(connectionString))
@@ -43,10 +54,25 @@ namespace CarRental.Controllers
                 return View(car); // Bulunan arabayý detay görünümüne gönder
             }
         }
+        // Filtreleme aksiyon metodu
+        [HttpGet]
+        public IActionResult Filter(string make)
+        {
+            using var connection = new SqlConnection(connectionString);
+            var query = "SELECT * FROM Cars WHERE Make LIKE @Make";
+            var cars = connection.Query<Car>(query, new { Make = $"%{make}%" }).ToList();
 
+            // Markalarýn listesi
+            var allMakesQuery = "SELECT DISTINCT Make FROM Cars";
+            var allMakes = connection.Query<string>(allMakesQuery).ToList();
+            ViewBag.Models = allMakes;
 
-
+            return View("Index", cars); // Filtrelenmiþ sonuçlarý Index view'ýna gönder
+        }
     }
+
 }
+    
+
         
 
