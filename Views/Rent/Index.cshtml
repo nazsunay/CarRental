@@ -2,31 +2,41 @@
 
 <section id="rental-list" class="position-relative">
     <div class="container my-5 py-5">
-        <h2 class="text-center my-5">Kiralık Araçlar</h2>
+        <h2 class="text-center my-5">Kiralama Bilgileri</h2>
 
         @if (Model == null || !Model.Any())
         {
-            <p>Kiralık araç bulunamadı.</p>
+            <p>Kiralama bilgisi bulunamadı.</p>
         }
         else
         {
-            <div class="row">
-                @foreach (var car in Model)
-                {
-                    <div class="col-md-4 mb-4">
-                        <div class="card">
-                            <img src="@car.ImgUrl" class="card-img-top img-fluid" alt="@car.Make @car.Model">
-                            <div class="card-body">
-                                <h4 class="card-title">@car.Make @car.Model</h4>
-                                <p class="card-text">Günlük Fiyat: $@car.DailyRate</p>
-                                <a href="@Url.Action("RentalDetails", "Rental", new { id = car.Id })" class="btn btn-primary">
-                                    Kiralamayı Görüntüle
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Araba ID</th>
+                        <th>Müşteri ID</th>
+                        <th>Kiralama Tarihi</th>
+                        <th>Dönüş Tarihi</th>
+                        <th>Toplam Maliyet</th>
+                        <th>Teslim Alınacak Konum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var rental in Model)
+                    {
+                        <tr>
+                            <td>@rental.Id</td>
+                            <td>@rental.CarId</td>
+                            <td>@rental.CustomerId</td>
+                            <td>@rental.RentalDate.ToShortDateString()</td>
+                            <td>@rental.ReturnDate.ToShortDateString()</td>
+                            <td>$@rental.TotalCost</td>
+                            <td>@rental.PickupLocation</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         }
     </div>
 </section>

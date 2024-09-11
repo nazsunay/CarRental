@@ -1,0 +1,42 @@
+﻿@model Car
+
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<section id="rental-form" class="container my-5">
+    <h2 class="text-center">Kiralama Bilgileri</h2>
+
+
+   @*  <form method="post" action="@Url.Action("ConfirmRental", "Rent")">
+        <input type="hidden" name="CarId" value="@ViewBag.Car.Id" />
+        <input type="hidden" name="CustomerId" value="@Model.CustomerId" />
+        <input type="hidden" name="RentalDate" value="@Model.RentalDate" />
+        <input type="hidden" name="ReturnDate" value="@Model.ReturnDate" />
+        <input type="text" name="PickupLocation" placeholder="Pickup Location" required />
+        <button type="submit">Confirm Rental</button>
+    </form> *@
+
+     <form asp-action="ConfirmRental" method="post">
+        <input type="hidden" name="carId" value="@Model.Id" />
+
+        <div class="mb-3">
+            <label for="pickupLocation" class="form-label">Teslim Alınacak Konum</label>
+            <input type="text" class="form-control" id="pickupLocation" name="PickupLocation" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="pickupDate" class="form-label">Teslim Alınacak Tarih</label>
+            <input type="datetime-local" class="form-control" id="RentalDate" name="RentalDate" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="returnDate" class="form-label">Teslim Tarihi</label>
+            <input type="datetime-local" class="form-control" id="returnDate" name="ReturnDate" required />
+        </div>
+
+        <button type="submit" class="btn btn-success">Kiralama Onayla</button>
+    </form> 
+</section>
