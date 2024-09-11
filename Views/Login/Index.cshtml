@@ -29,41 +29,44 @@
             <a href="/Login/SignUp" class="btn btn-success">Sign UP</a>
         </div>
     </div>
-  @*   <div class="g-recaptcha" data-sitekey="6LfmFz0qAAAAAPL7Hj50bxWfhBvkDZS9aX-mBNhM"></div> <!-- reCAPTCHA Widget'ı --> *@
     <label class="py-3">
         <input type="checkbox" required class="d-inline">
         <span class="label-body text-black">Remember Me</span>
     </label>
     <div class="d-grid my-3">
-        <button type="submit" class="btn btn-primary btn-lg btn-dark text-uppercase btn-rounded-none fs-6">Log In</button>
+        <button class="g-recaptcha btn btn-dark text-uppercase fs-6"
+                data-sitekey="6LfRHjQqAAAAAGBJRNYS8azjjIRF6Hu-vfQAiAyW"
+                data-callback="onSubmit"
+                data-action="submit">
+            Log In
+        </button>
     </div>
 </form>
-
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function () {
-            $('#form1').submit(function (event) {
-                event.preventDefault(); // Formun normal gönderimini engelle
-                $.ajax({
-                    type: 'POST',
-                    url: $(this).attr('action'),
-                    data: $(this).serialize(),
-                    success: function (response) {
-                        if (response.success) {
-                            // Başarılı giriş, yönlendirme yap
-                            window.location.href = '@Url.Action("Index", "Home")'; // Ana sayfaya yönlendir
-                        } else {
-                            // Hata mesajını göster
-                            alert(response.message);
-                        }
-                    },
-                    error: function () {
-                        alert('Bir hata oluştu. Lütfen tekrar deneyin.');
+        function onSubmit(token) {
+            // Form verilerini ve reCAPTCHA token'ını sunucuya gönder
+            var formData = $('#form1').serialize() + '&g-recaptcha-response=' + token;
+
+            $.ajax({
+                type: 'POST',
+                url: $('#form1').attr('action'),
+                data: formData,
+                success: function (response) {
+                    if (response.success) {
+                        window.location.href = '@Url.Action("Index", "Home")';
+                    } else {
+                        alert(response.message);
                     }
-                });
+                },
+                error: function () {
+                    alert('Bir hata oluştu. Lütfen tekrar deneyin.');
+                }
             });
-        });
+        }
     </script>
+    <script src="https://www.google.com/recaptcha/api.js"></script>
 }
+
