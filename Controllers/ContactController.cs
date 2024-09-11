@@ -30,5 +30,6 @@ namespace CarRental.Controllers
             return View(model); // Modeli geri dönün
         }
 
+
     }
 }
