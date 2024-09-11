@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Net.Mail;
 using System.Net;
 using Dapper;
+using System.Reflection;
 
 namespace CarRental.Controllers
 {
@@ -12,10 +13,15 @@ namespace CarRental.Controllers
     {
 
         string connectionString = "Server=104.247.162.242\\MSSQLSERVER2019;Initial Catalog=nazlisun_CarRentalDb; User Id=nazlisun_CarRental;Password=Nazli.55?; TrustServerCertificate=True";
+
         public IActionResult Index()
         {
-            return View();
+            using var connection = new SqlConnection(connectionString);
+            var rentals = connection.Query<Rental>("SELECT * FROM Rentals").ToList();
+
+            return View(rentals);
         }
+
 
         public IActionResult RentNow(int id)
         {
@@ -32,76 +38,84 @@ namespace CarRental.Controllers
 
                 if (customer == null)
                 {
-                    return RedirectToAction("Login", "Index"); // Kullanıcı girişi yapılmamışsa giriş sayfasına yönlendir
+                    return RedirectToAction("Index", "Login"); // Kullanıcı girişi yapılmamışsa giriş sayfasına yönlendir
                 }
 
-                ViewBag.Car = car; // Kiralanan aracı ViewBag ile gönder
-                return View(); // Kiralama sayfasını göster
+                ViewBag.Car = car; // Kiralanacak aracı ViewBag'e ekle
+
+                return View(car); // Kiralama sayfasını göster
             }
         }
 
-        [HttpPost]
-        public IActionResult ConfirmRental(DateTime rentalDate)
+        public IActionResult ConfirmRental(int carId, Rental rental, string pickupLocation)
         {
             var customer = GetCurrentCustomer();
-            var car = ViewBag.Car as Car; // Kiralanan aracı ViewBag'den al
 
-            if (car == null || customer == null)
-            {
-                return RedirectToAction("Login", "Index"); // Gerekli bilgiler yoksa giriş sayfasına yönlendir
-            }
-
-            // Kiralama işlemini veritabanına ekle
             using (var connection = new SqlConnection(connectionString))
             {
-                var rental = new Rental
+                var car = connection.QuerySingleOrDefault<Car>("SELECT * FROM Cars WHERE Id = @Id", new { Id = carId });
+                if (car == null || customer == null)
                 {
-                    CarId = car.Id,
-                    CustomerId = customer.Id,
-                    RentalDate = rentalDate,
-                    ReturnDate = rentalDate.AddDays(1), // Örnek olarak 1 gün kiralama
-                    TotalCost = car.DailyRate // Toplam maliyet
-                };
+                    ViewBag.Message = "Gerekli bilgiler eksik.";
+                    return View("Error");
+                }
+
+                rental.CarId = car.Id;
+                rental.CustomerId = customer.Id;
+                rental.TotalCost = car.DailyRate;
+                rental.PickupLocation = pickupLocation;
+                rental.RentalDate = DateTime.Now;
+                rental.ReturnDate = rental.ReturnDate;
 
                 var rentalId = connection.ExecuteScalar<int>(
-                    "INSERT INTO Rentals (CarId, CustomerId, RentalDate, ReturnDate, TotalCost) " +
-                    "VALUES (@CarId, @CustomerId, @RentalDate, @ReturnDate, @TotalCost); SELECT CAST(SCOPE_IDENTITY() as int);",
+                    "INSERT INTO Rentals (CarId, CustomerId, RentalDate, ReturnDate, TotalCost, PickupLocation) " +
+                    "VALUES (@CarId, @CustomerId, @RentalDate, @ReturnDate, @TotalCost, @PickupLocation); SELECT CAST(SCOPE_IDENTITY() as int);",
                     rental
                 );
 
-                // E-posta gönderme bilgilerini ayarlayın
-                ViewBag.Subject = "Araba Kiralama Bilgisi";
-                ViewBag.Body = $"Merhaba {customer.Name},<br/> {car.Make} {car.Model} kiralama işleminiz başarıyla gerçekleşmiştir. Kiralama Tarihi: {rental.RentalDate.ToShortDateString()}";
+                var subject = "Araba Kiralama Bilgisi";
+                var body = $"Merhaba {customer.Name},<br/> {car.Make} {car.Model} kiralama işleminiz başarıyla gerçekleşmiştir.<br/>" +
+                           $"Kiralama Tarihi: {rental.RentalDate.ToShortDateString()}<br/>" +
+                           $"Teslim Alınacak Konum: {pickupLocation}<br/>" +
+                           $"Teslim Tarihi: {rental.ReturnDate.ToShortDateString()}";
 
-                // E-posta gönder
-                SendMail(new Customer { Email = customer.Email, Name = customer.Name });
+                SendMail(new CustomerLoginModel { Email = customer.Email }, subject, body);
 
-                ViewBag.Message = "Mailiniz iletilmiştir."; // Kullanıcıya gösterilecek mesaj
-                return View("Index"); // Ana sayfaya döndür
+                ViewBag.Message = "Mailiniz iletilmiştir.";
+
+                // Index'e yönlendirin ve model olarak Rentals listesini gönderin
+                return RedirectToAction("Index");
             }
         }
 
-        public IActionResult SendMail(Customer customer)
+
+
+        public IActionResult SendMail(CustomerLoginModel customer, string subject, string body)
         {
-            var client = new SmtpClient("smtp.eu.mailgun.org", 587)
             {
-                Credentials = new NetworkCredential("postmaster@bildirim.nazlisunay.com.tr", "3b212cffce4a231e162ecd83abce45ea-911539ec-debf1d4c"),
-                EnableSsl = true
-            };
+                var client = new SmtpClient("smtp.eu.mailgun.org", 587)
+                {
+                    Credentials = new NetworkCredential("postmaster@bildirim.muhammetcoskun.com.tr", "bc4babb0ed21f37fe993af60bd8bbd9f-623e10c8-acec0be3"),
+                    EnableSsl = true
+                };
 
-            var mailMessage = new MailMessage
-            {
-                From = new MailAddress("bildirim@rentalCar.com.tr", "rentalCar.com"),
-                Subject = ViewBag.Subject,
-                Body = ViewBag.Body,
-                IsBodyHtml = true,
-            };
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress("sarisite@bildirim.muhammetcoskun.com.tr", "sarisite.com"),
+                    Subject = ViewBag.Subject,
+                    Body = ViewBag.Body,
+                    IsBodyHtml = true,
+                };
 
-            mailMessage.ReplyToList.Add(customer.Email);
-            mailMessage.To.Add(new MailAddress(customer.Email, customer.Name));
+                mailMessage.ReplyToList.Add(customer.Email);
+                mailMessage.To.Add(new MailAddress($"{customer.Email}"));
 
-            client.Send(mailMessage);
-            return RedirectToAction("Index"); // Geri dönüş sayfası
+
+                client.Send(mailMessage);
+                return RedirectToAction(ViewBag.Return);
+            }
+
+            
         }
 
         private Customer GetCurrentCustomer()

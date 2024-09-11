@@ -1,0 +1,84 @@
+﻿@model Customer
+
+
+
+
+<br />
+<br />
+<br />
+<br />
+
+
+@{
+    ViewData["Title"] = "Kayıt Ol";
+}
+
+<h2>Kayıt Ol</h2>
+
+<form id="form1" class="form-group flex-wrap p-3" method="post" action="@Url.Action("SignUp", "Login")">
+    <div class="form-input col-lg-12 my-4">
+        <label for="Name" class="form-label fs-6 text-uppercase fw-bold text-black">İsim</label>
+        <input type="text" asp-for="Name" class="form-control ps-3" required />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-input col-lg-12 my-4">
+        <label for="Email" class="form-label fs-6 text-uppercase fw-bold text-black">E-posta</label>
+        <input type="email" asp-for="Email" class="form-control ps-3" required />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-input col-lg-12 my-4">
+        <label for="PhoneNumber" class="form-label fs-6 text-uppercase fw-bold text-black">Telefon Numarası</label>
+        <input type="tel" asp-for="PhoneNumber" class="form-control ps-3" required />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+
+    <div class="form-input col-lg-12 my-4">
+        <label for="Password" class="form-label fs-6 text-uppercase fw-bold text-black">Şifre</label>
+        <input type="password" asp-for="Password" class="form-control ps-3" required />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div class="form-input col-lg-12 my-4">
+        <label for="inputPassword1" class="form-label fs-6 text-uppercase fw-bold text-black">Şifreyi Onayla</label>
+        <input type="password" id="inputPassword1" name="confirmPassword" placeholder="Şifreyi Onayla" class="form-control ps-3" required>
+    </div>
+
+    <div class="form-text text-center">
+        <a href="/Login/Forgot" class="btn btn-success">Forgot Password?</a>
+        <a href="/Login" class="btn btn-success">Already have an account? Log In</a>
+    </div>
+
+    <div class="d-grid my-3">
+        <button type="submit" class="btn btn-primary btn-lg btn-dark text-uppercase btn-rounded-none fs-6">Kayıt Ol</button>
+    </div>
+</form>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#signupForm').submit(function (event) {
+                event.preventDefault(); // Formun normal gönderimini engelle
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('action'),
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            // Başarılı kayıt, yönlendirme yap
+                            window.location.href = '@Url.Action("Index", "Home")'; // Ana sayfaya yönlendir
+                        } else {
+                            // Hata mesajını göster
+                            alert(response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Bir hata oluştu. Lütfen tekrar deneyin.');
+                    }
+                });
+            });
+        });
+    </script>
+}

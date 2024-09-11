@@ -43,5 +43,45 @@ namespace CarRental.Controllers
             return Json(new { success = false, message = "Form geçersiz." });
         }
 
+        [HttpGet]
+        public IActionResult SignUp()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult SignUp(Customer model)
+        {
+            if (ModelState.IsValid)
+            {
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Kullanıcının daha önce kayıtlı olup olmadığını kontrol et
+                    var existingCustomer = connection.QuerySingleOrDefault<Customer>(
+                        "SELECT * FROM Customers WHERE Email = @Email", new { Email = model.Email });
+
+                    if (existingCustomer != null)
+                    {
+                        ModelState.AddModelError("Email", "Bu e-posta adresi zaten kayıtlı.");
+                        return View(model);
+                    }
+
+                    // Yeni kullanıcıyı ekle
+                    var newCustomerId = connection.ExecuteScalar<int>(
+                        "INSERT INTO Customers (Name, Email, PhoneNumber, Password) VALUES (@Name, @Email, @PhoneNumber, @Password); SELECT CAST(SCOPE_IDENTITY() as int);",
+                        new { Name = model.Name, Email = model.Email, PhoneNumber = model.PhoneNumber, Password=model.Password });
+
+                    // Başarılı kayıt sonrası yönlendirme (örneğin, giriş sayfasına)
+                    return RedirectToAction("Login");
+                }
+            }
+
+            return View(model);
+        }
+
+
+
     }
 }
