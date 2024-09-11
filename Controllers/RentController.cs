@@ -16,12 +16,18 @@ namespace CarRental.Controllers
 
         public IActionResult Index()
         {
+            var currentCustomer = GetCurrentCustomer();
+
+            if (currentCustomer == null)
+            {
+                return RedirectToAction("Login"); // Kullanıcı giriş yapmamışsa giriş sayfasına yönlendir
+            }
+
             using var connection = new SqlConnection(connectionString);
-            var rentals = connection.Query<Rental>("SELECT * FROM Rentals").ToList();
+            var rentals = connection.Query<Rental>("SELECT * FROM Rentals WHERE CustomerId = @CustomerId", new { CustomerId = currentCustomer.Id }).ToList();
 
             return View(rentals);
         }
-
 
         public IActionResult RentNow(int id)
         {
@@ -88,10 +94,11 @@ namespace CarRental.Controllers
             }
         }
 
-
+        //mail düzenlecek !!
 
         public IActionResult SendMail(CustomerLoginModel customer, string subject, string body)
         {
+            try
             {
                 var client = new SmtpClient("smtp.eu.mailgun.org", 587)
                 {
@@ -101,21 +108,30 @@ namespace CarRental.Controllers
 
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress("sarisite@bildirim.muhammetcoskun.com.tr", "sarisite.com"),
-                    Subject = ViewBag.Subject,
-                    Body = ViewBag.Body,
+                    From = new MailAddress("CarRental@bildirim.muhammetcoskun.com.tr", "CarRental.com"),
+                    Subject = subject,
+                    Body = body,
                     IsBodyHtml = true,
                 };
 
                 mailMessage.ReplyToList.Add(customer.Email);
-                mailMessage.To.Add(new MailAddress($"{customer.Email}"));
-
+                mailMessage.To.Add(new MailAddress(customer.Email));
 
                 client.Send(mailMessage);
                 return RedirectToAction(ViewBag.Return);
             }
-
-            
+            catch (SmtpException smtpEx)
+            {
+                // SMTP hatalarını burada işleyebilirsiniz
+                Console.WriteLine($"SMTP Hatası: {smtpEx.Message}");
+                return View("Error"); // Hata sayfasına yönlendirin
+            }
+            catch (Exception ex)
+            {
+                // Diğer hataları burada işleyebilirsiniz
+                Console.WriteLine($"Hata: {ex.Message}");
+                return View("Error"); // Hata sayfasına yönlendirin
+            }
         }
 
         private Customer GetCurrentCustomer()

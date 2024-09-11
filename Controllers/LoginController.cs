@@ -22,14 +22,14 @@ namespace CarRental.Controllers
             {
                 using (var connection = new SqlConnection(connectionString))
                 {
-                    connection.Open();
+                    
                     var customer = connection.QuerySingleOrDefault<Customer>(
                         "SELECT * FROM Customers WHERE Email = @Email AND Password = @Password",
                         new { Email = model.Email, Password = model.Password });
 
                     if (customer != null)
                     {
-                        // Oturum açma işlemi başarılı
+                        
                         HttpContext.Session.SetString("CurrentCustomer", JsonConvert.SerializeObject(customer));
                         return Json(new { success = true }); // Başarılı yanıt
                     }
@@ -56,7 +56,7 @@ namespace CarRental.Controllers
             {
                 using (var connection = new SqlConnection(connectionString))
                 {
-                    connection.Open();
+                    
 
                     // Kullanıcının daha önce kayıtlı olup olmadığını kontrol et
                     var existingCustomer = connection.QuerySingleOrDefault<Customer>(
