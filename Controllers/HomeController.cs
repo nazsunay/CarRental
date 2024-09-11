@@ -40,7 +40,7 @@ namespace CarRental.Controllers
                     return NotFound(); // Eðer araba bulunamazsa 404 döndür
                 }
 
-                return View(car); // Bulunan arabayý detay görünümüne gönder
+                return View(car); 
             }
         }
 
