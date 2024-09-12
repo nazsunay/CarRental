@@ -36,8 +36,9 @@
     const monthlyLabel = document.getElementById('monthly-label');
     const yearlyLabel = document.getElementById('yearly-label');
 
+     
 
-    yearlyLabel.classList.add('label-color'); // Set initial accent color to yearly label
+
 
 
     switchInput.addEventListener('change', function () {

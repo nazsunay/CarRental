@@ -48,5 +48,6 @@
     {
         public bool Success { get; set; }
         public double Score { get; set; }
+        public string[] ErrorCodes { get; set; }
     }
 }

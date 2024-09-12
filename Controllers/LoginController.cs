@@ -11,6 +11,7 @@ namespace CarRental.Controllers
     {
 
         string connectionString = "Server=104.247.162.242\\MSSQLSERVER2019;Initial Catalog=nazlisun_CarRentalDb; User Id=nazlisun_CarRental;Password=Nazli.55?; TrustServerCertificate=True";
+
         public IActionResult Index()
         {
             return View(new CustomerLoginModel());
@@ -21,14 +22,20 @@ namespace CarRental.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Json(new { success = false, message = "Form geçersiz." });
+                return View(model);
             }
 
             var captchaToken = Request.Form["g-recaptcha-response"];
+            if (string.IsNullOrEmpty(captchaToken))
+            {
+                ModelState.AddModelError("", "reCAPTCHA doğrulaması başarısız oldu.");
+                return View(model);
+            }
 
             if (!VerifyCaptcha(captchaToken))
             {
-                return Json(new { success = false, message = "reCAPTCHA doğrulaması başarısız." });
+                ModelState.AddModelError("", "reCAPTCHA doğrulaması başarısız oldu.");
+                return View(model);
             }
 
             using (var connection = new SqlConnection(connectionString))
@@ -40,11 +47,12 @@ namespace CarRental.Controllers
                 if (customer != null)
                 {
                     HttpContext.Session.SetString("CurrentCustomer", JsonConvert.SerializeObject(customer));
-                    return Json(new { success = true });
+                    return RedirectToAction("Index", "Home");
                 }
                 else
                 {
-                    return Json(new { success = false, message = "Geçersiz e-posta veya şifre." });
+                    ModelState.AddModelError("", "Geçersiz e-posta veya şifre.");
+                    return View(model);
                 }
             }
         }
@@ -53,13 +61,24 @@ namespace CarRental.Controllers
         {
             var client = new RestClient("https://www.google.com/recaptcha");
             var request = new RestRequest("api/siteverify", Method.Post);
-            request.AddParameter("secret", "6Ld6zz8qAAAAAL3bDJ11OMmHx2e43Z8q5BRrtzEu");
+            request.AddParameter("secret", "6LfEHjQqAAAAABPi-Pk74HZy-QSNHJxoxGcDEBqR"); // Secret key
             request.AddParameter("response", captchaToken);
 
             var response = client.Execute<CaptchaResponse>(request);
 
-            return response.Data.Success && response.Data.Score > 0.5;
+            if (response.Data.Success && response.Data.Score > 0.6)
+            {
+                return true;
+            }
+
+            foreach (var error in response.Data.ErrorCodes)
+            {
+                System.Diagnostics.Debug.WriteLine($"reCAPTCHA error: {error}");
+            }
+
+            return false;
         }
+
 
         [HttpGet]
         public IActionResult SignUp()
@@ -74,6 +93,9 @@ namespace CarRental.Controllers
             {
                 using (var connection = new SqlConnection(connectionString))
                 {
+
+
+                    // Kullanıcının daha önce kayıtlı olup olmadığını kontrol et
                     var existingCustomer = connection.QuerySingleOrDefault<Customer>(
                         "SELECT * FROM Customers WHERE Email = @Email", new { Email = model.Email });
 
@@ -83,16 +105,28 @@ namespace CarRental.Controllers
                         return View(model);
                     }
 
+                    // Yeni kullanıcıyı ekle
                     var newCustomerId = connection.ExecuteScalar<int>(
                         "INSERT INTO Customers (Name, Email, PhoneNumber, Password) VALUES (@Name, @Email, @PhoneNumber, @Password); SELECT CAST(SCOPE_IDENTITY() as int);",
                         new { Name = model.Name, Email = model.Email, PhoneNumber = model.PhoneNumber, Password = model.Password });
 
+                    // Başarılı kayıt sonrası yönlendirme (örneğin, giriş sayfasına)
                     return RedirectToAction("Index", "Login");
                 }
             }
 
             return View(model);
         }
+        private Customer GetCurrentCustomer()
+        {
+            var customerJson = HttpContext.Session.GetString("CurrentCustomer");
 
+            if (string.IsNullOrEmpty(customerJson))
+            {
+                return null; // Eğer müşteri bilgisi yoksa null döndür
+            }
+
+            return JsonConvert.DeserializeObject<Customer>(customerJson);
+        }
     }
 }
