@@ -5,6 +5,8 @@
 @{
     ViewData["Title"] = "GoCar Page";
 }
+
+
 @* //Home *@
 <!-- hero section start  -->
 <section id="hero" class=" position-relative overflow-hidden">
@@ -91,7 +93,7 @@
                                 
                                 <img src="@car.ImgUrl" class="card-img-top img-fluid" alt="...">
                                 <div class="card-body p-4">
-                                    <a href="car-single.html">
+                                    <a href="@Url.Action("Details", "Home", new { id = car.Id })">
                                         <h4 class="card-title">@car.Make @car.Model</h4>
                                     </a>
 

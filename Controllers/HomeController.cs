@@ -54,7 +54,7 @@ namespace CarRental.Controllers
                 return View(car); 
             }
         }
-        // Filtreleme aksiyon metodu
+        // Filtreleme 
         [HttpGet]
         public IActionResult Filter(string make)
         {
@@ -62,12 +62,12 @@ namespace CarRental.Controllers
             var query = "SELECT * FROM Cars WHERE Make LIKE @Make";
             var cars = connection.Query<Car>(query, new { Make = $"%{make}%" }).ToList();
 
-            // Markalarýn listesi
+           
             var allMakesQuery = "SELECT DISTINCT Make FROM Cars";
             var allMakes = connection.Query<string>(allMakesQuery).ToList();
             ViewBag.Models = allMakes;
 
-            return View("Index", cars); // Filtrelenmiþ sonuçlarý Index view'ýna gönder
+            return View("Index", cars); 
         }
     }
 
