@@ -1,18 +1,11 @@
-﻿@model Customer
-
-
-
-
-<br />
-<br />
-<br />
-<br />
-
+﻿@model CustomerLoginModel
 
 @{
     ViewData["Title"] = "Login";
 }
 
+
+<br /><br /><br /><br />
 <h2>Login</h2>
 
 <form id="form1" class="form-group flex-wrap p-3" method="post" action="@Url.Action("Login", "Login")">
@@ -27,6 +20,7 @@
         <div id="passwordHelpBlock" class="form-text text-center">
             <a href="/Login/Forgot" class="btn btn-success">Forgot Password?</a>
             <a href="/Login/SignUp" class="btn btn-success">Sign UP</a>
+           
         </div>
     </div>
     <label class="py-3">
@@ -35,7 +29,7 @@
     </label>
     <div class="d-grid my-3">
         <button class="g-recaptcha btn btn-dark text-uppercase fs-6"
-                data-sitekey="6LfRHjQqAAAAAGBJRNYS8azjjIRF6Hu-vfQAiAyW"
+                data-sitekey="6Ld6zz8qAAAAALkz2-dlgcs3AlrLRX8Aonybrcdo"
                 data-callback="onSubmit"
                 data-action="submit">
             Log In
@@ -47,7 +41,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         function onSubmit(token) {
-            // Form verilerini ve reCAPTCHA token'ını sunucuya gönder
             var formData = $('#form1').serialize() + '&g-recaptcha-response=' + token;
 
             $.ajax({
@@ -56,17 +49,16 @@
                 data: formData,
                 success: function (response) {
                     if (response.success) {
-                        window.location.href = '@Url.Action("Index", "Home")';
+                        // Başarılı girişte yönlendirme yap
+                        window.location.href = '/Rent/RentNow'; // Ana sayfaya yönlendir
                     } else {
-                        alert(response.message);
+                        alert(response.message); // Hata mesajını göster
                     }
                 },
                 error: function () {
-                    alert('Bir hata oluştu. Lütfen tekrar deneyin.');
+                    alert("Bir hata oluştu. Lütfen tekrar deneyin.");
                 }
             });
         }
     </script>
-    <script src="https://www.google.com/recaptcha/api.js"></script>
 }
-

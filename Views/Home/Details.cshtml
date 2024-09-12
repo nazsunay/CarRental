@@ -1,1 +1,38 @@
-﻿<p>Details</p>
+﻿
+@model Car 
+
+@{
+    ViewData["Title"] = $"{Model.Make} {Model.Model} Detayları"; 
+}
+
+<br />
+<br />
+
+
+
+<div class="container my-5">
+    <h1 class="text-center mb-4">@Model.Make @Model.Model</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <img src="@Model.ImgUrl" class="img-fluid rounded" alt="@Model.Make @Model.Model">
+        </div>
+        <div class="col-md-6">
+            <h3>Özellikler</h3>
+            <ul class="list-unstyled">
+                <li><strong>Model:</strong> @Model.Model</li>
+                <li><strong>Marka:</strong> @Model.Make</li>
+                <li><strong>Yıl:</strong> @Model.Year</li>
+                <li><strong>Günlük Kira Ücreti:</strong> $@Model.DailyRate</li>
+                <li><strong>Durum:</strong> @(Model.IsAvailable ? "Mevcut" : "Mevcut Değil")</li>
+                <li><strong>Alış Lokasyonu:</strong> @Model.PickupLocation</li>
+                <li><strong>Kiralama Tarihi:</strong> @Model.RentalDate.ToString("dd MMMM yyyy")</li>
+                <li><strong>İade Tarihi:</strong> @Model.ReturnDate.ToString("dd MMMM yyyy")</li>
+            </ul>
+            <div class="d-flex justify-content-between mt-4">
+                <a href="@Url.Action("RentNow", "Rent", new { id = Model.Id })" class="btn btn-primary">Şimdi Kirala</a>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Geri Dön</a>
+            </div>
+        </div>
+    </div>
+</div>
