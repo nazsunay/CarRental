@@ -2,6 +2,7 @@
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using System.Data.SqlClient;
+using System.IO;
 
 namespace CarRental.Controllers
 {
@@ -16,62 +17,108 @@ namespace CarRental.Controllers
             return View(posts);
         }
 
+        public IActionResult Add()
+        {
+            using var connection = new SqlConnection(connectionString);
+            var posts = connection.Query<Car>("SELECT * FROM Cars").ToList();
+
+            return View(posts);
+        }
+
         [HttpPost]
-        public IActionResult Add(Car model)
+        public IActionResult Add(Car model, IFormFile Image)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(new
-                {
-                    msg = "Eksik veya hatali bilgi girisi yaptin.."
-                });
+                ViewBag.MessageCssClass = "alert-danger";
+                ViewBag.Message = "Eksik veya hatalı işlem yaptınız.";
+                return View(model); 
             }
 
             using var connection = new SqlConnection(connectionString);
 
-            var newRecordId = connection.ExecuteScalar<int>("INSERT INTO Cars (Make, Model, Year, ImgUrl, DailyRate, IsAvailable) VALUES (@Make, @Model, @Year, @ImgUrl, @DailyRate, @IsAvailable) SELECT SCOPE_IDENTITY()", model);
-            model.Id = newRecordId;
+            var ilanlar = "INSERT INTO Cars (Make, Model, Year, ImgUrl, DailyRate, IsAvailable) VALUES (@Make, @Model, @Year, @ImgUrl, @DailyRate, @IsAvailable)";
 
-            return View(model);
+            var imageName = Guid.NewGuid().ToString() + Path.GetExtension(Image.FileName);
+
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", imageName);
+            using var stream = new FileStream(path, FileMode.Create);
+            Image.CopyTo(stream);
+            model.ImgUrl = imageName;
+
+            var data = new
+            {
+                model.Make,
+                model.Model,
+                model.Year,
+                model.ImgUrl,
+                model.DailyRate,
+                model.IsAvailable
+            };
+
+            var rowsAffected = connection.Execute(ilanlar, data);
+
+            ViewBag.MessageCssClass = "alert-success";
+            ViewBag.Message = "Araç başarıyla eklendi.";
+            return View("Message");  
         }
 
-        [HttpPost]
-        public IActionResult Edit(Car model)
+        public IActionResult Edit(int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new
-                {
-                    msg = "Eksik veya hatali bilgi girisi yaptin.."
-                });
-            }
 
             using var connection = new SqlConnection(connectionString);
+            var post = connection.QuerySingleOrDefault<Car>("SELECT * FROM Cars WHERE Id = @Id", new { Id = id });
 
-            var newRecordId = connection.ExecuteScalar<int>("UPDATE Cars SET Name=@Name, Make=@Make, Model=@Model,Year=@Year, ImgUrl=@ImgUrl, DailyRate=@DailyRate, IsAvailable=@IsAvailable WHERE Id = @Id SELECT SCOPE_IDENTITY()", model);
-            model.Id = newRecordId;
-
-            return View(model);
+            return View(post);
         }
+
         [HttpPost]
+        public IActionResult Edit(Car model, IFormFile Image)
+        {
+
+            using var connection = new SqlConnection(connectionString);
+            var imageName = model.ImgUrl;
+            if (Image != null)
+            {
+                imageName = Guid.NewGuid().ToString() + Path.GetExtension(Image.FileName);
+
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Uploads", imageName);
+                using var stream = new FileStream(path, FileMode.Create);
+                Image.CopyTo(stream);
+            }
+
+            var sql = "UPDATE Cars SET Make = @Make, Model = @Model, Year = @Year, ImgUrl = @ImgUrl, DailyRate = @DailyRate, IsAvailable = @IsAvailable WHERE Id = @Id";
+
+            var param = new
+            {
+                model.Make,
+                Model = model.Model,
+                Year = model.Year,
+                DailyRate = model.DailyRate,
+                IsAvailable = model.IsAvailable,
+                Id = model.Id,
+                ImgUrl = imageName,
+            };
+
+
+            var affectedRows = connection.Execute(sql, param);
+
+
+            ViewBag.Message = "Güncellendi.";
+            ViewBag.MessageCssClass = "alert-success";
+            return View("Message");
+        }
+
         public IActionResult Delete(int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new
-                {
-                    msg = "Eksik veya hatali bilgi girisi yaptin.."
-                });
-            }
 
             using var connection = new SqlConnection(connectionString);
+            var sql = "DELETE FROM Cars WHERE Id=@Id";
 
-            var newRecordId = connection.ExecuteScalar<int>("DELETE FROM Cars WHERE Id = @Id SELECT SCOPE_IDENTITY()", new { Id = id });
+            var rowsAffected = connection.Execute(sql, new { Id = id });
 
-            return View(new
-            {
-                msg = "Silme islemi basariyla gerceklesti"
-            });
+            return RedirectToAction("Index"); ;
         }
+
     }
 }

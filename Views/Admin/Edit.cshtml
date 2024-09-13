@@ -1,0 +1,130 @@
+﻿@model Car
+
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            width: 60%;
+            margin: 40px auto;
+            background-color: #fff;
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 26px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .form-control, .form-control-file {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background-color: #FFD700;
+            border: none;
+            color: #333;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            display: inline-block;
+            transition: background-color 0.3s;
+            text-align: center;
+        }
+
+            .btn-primary:hover {
+                background-color: #ff9900;
+            }
+
+        .alert-primary {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .image-preview {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<br />
+<br />
+<br />
+<br />
+<body>
+    <div class="container">
+        <form method="post" action="/Admin/Edit" autocomplete="off" enctype="multipart/form-data">
+            <div class="form-group">
+                <label class="form-label" for="Make">Make</label>
+                <input type="text" class="form-control" id="Make" name="Make" value="@Model.Make" placeholder="Make" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="Model">Model</label>
+                <input type="text" class="form-control" id="Model" name="Model" value="@Model.Model" placeholder="Model" required>
+            </div>
+           
+            <div class="form-group">
+                <label class="form-label" for="Year">Year</label>
+                <input type="number" class="form-control" id="Year" name="Year" value="@Model.Year" placeholder="Year" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="DailyRate">DailyRate</label>
+                <input type="number" class="form-control" id="DailyRate" name="DailyRate" value="@Model.DailyRate" placeholder="DailyRate" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="Image">Görsel</label>
+                <img src="/Uploads/@Model.ImgUrl" alt="İlan Resmi" class="image-preview" />
+                <input type="file" class="form-control-file" id="Image" name="Image" accept="image/png, image/jpeg">
+                <input type="hidden" name="ImgUrl" value="@Model.ImgUrl" />
+            </div>
+            <input type="hidden" name="Id" value="@Model.Id" />
+            <div class="form-group">
+                <button type="submit" class="btn btn-success">Guncelle</button>
+            </div>
+        </form>
+        @if (ViewData["Mesaj"] != null)
+        {
+            <div class="alert alert-primary" role="alert">
+                @ViewData["Mesaj"]
+            </div>
+        }
+    </div>
+</body>
+</html>
