@@ -6,6 +6,7 @@ using System.Net.Mail;
 using System.Net;
 using Dapper;
 using System.Reflection;
+using Microsoft.Extensions.Hosting;
 
 namespace CarRental.Controllers
 {
@@ -40,16 +41,16 @@ namespace CarRental.Controllers
                     return NotFound(); // Eğer araba bulunamazsa 404 döndür
                 }
 
-                var customer = GetCurrentCustomer(); // Oturumdaki kullanıcı bilgilerini al
+                var customer = GetCurrentCustomer();
 
                 if (customer == null)
                 {
-                    return RedirectToAction("Index", "Login"); // Kullanıcı girişi yapılmamışsa giriş sayfasına yönlendir
+                    return RedirectToAction("Index", "Login");
                 }
 
-                ViewBag.Car = car; // Kiralanacak aracı ViewBag'e ekle
+                ViewBag.Car = car;
 
-                return View(car); // Kiralama sayfasını göster
+                return View(car);
             }
         }
 
@@ -60,18 +61,37 @@ namespace CarRental.Controllers
             using (var connection = new SqlConnection(connectionString))
             {
                 var car = connection.QuerySingleOrDefault<Car>("SELECT * FROM Cars WHERE Id = @Id", new { Id = carId });
-                if (car == null || customer == null)
+                if (car == null || customer == null || !car.IsAvailable)
                 {
-                    ViewBag.Message = "Gerekli bilgiler eksik.";
-                    return View("Error");
+                    ViewBag.Message = " Araç Kiralanmıştır Lütfen başka bir araç seçiniz .";
+                    return View("Message");
                 }
 
+                // Kullanıcının zaten bir kiralaması var mı kontrol et
+                var existingRentals = connection.Query<Rental>(
+                    "SELECT * FROM Rentals WHERE CustomerId = @CustomerId AND " +
+                    "((RentalDate <= @ReturnDate AND ReturnDate >= @RentalDate) OR " +
+                    "(RentalDate >= @RentalDate AND RentalDate <= @ReturnDate))",
+                    new { CustomerId = customer.Id, RentalDate = rental.RentalDate, ReturnDate = rental.ReturnDate }
+                ).ToList();
+
+                if (existingRentals.Any())
+                {
+                    ViewBag.Message = "Bu tarihler arasında araç kiralanmış. Lütfen başka bir araç seçin.";
+                    return View("Message");
+                }
+
+                // Yeni kiralama işlemi
                 rental.CarId = car.Id;
                 rental.CustomerId = customer.Id;
                 rental.TotalCost = car.DailyRate;
                 rental.PickupLocation = pickupLocation;
                 rental.RentalDate = DateTime.Now;
-                rental.ReturnDate = rental.ReturnDate;
+                rental.ReturnDate = rental.ReturnDate ?? DateTime.Now.AddDays(1); // Örnek: 1 gün kiralama
+
+                // Araç kiralandıktan sonra IsAvailable'ı false yap
+                car.IsAvailable = false;
+                connection.Execute("UPDATE Cars SET IsAvailable = @IsAvailable WHERE Id = @Id", new { IsAvailable = car.IsAvailable, Id = car.Id });
 
                 var rentalId = connection.ExecuteScalar<int>(
                     "INSERT INTO Rentals (CarId, CustomerId, RentalDate, ReturnDate, TotalCost, PickupLocation) " +
@@ -79,60 +99,98 @@ namespace CarRental.Controllers
                     rental
                 );
 
-                var subject = "Araba Kiralama Bilgisi";
-                var body = $"Merhaba {customer.Name},<br/> {car.Make} {car.Model} kiralama işleminiz başarıyla gerçekleşmiştir.<br/>" +
-                           $"Kiralama Tarihi: {rental.RentalDate.ToShortDateString()}<br/>" +
-                           $"Teslim Alınacak Konum: {pickupLocation}<br/>" +
-                           $"Teslim Tarihi: {rental.ReturnDate.ToShortDateString()}";
+                var emailContent = CreateEmailContent(rental, car, customer.Email);
 
-                SendMail(new CustomerLoginModel { Email = customer.Email }, subject, body);
+                try
+                {
+                    SendMail(new Customer { Email = customer.Email }, emailContent);
+                    ViewBag.Message = "Mailiniz iletilmiştir.";
+                }
+                catch (Exception)
+                {
+                    ViewBag.Message = "E-posta gönderiminde bir sorun oluştu.";
+                }
 
-                ViewBag.Message = "Mailiniz iletilmiştir.";
-
-                // Index'e yönlendirin ve model olarak Rentals listesini gönderin
                 return RedirectToAction("Index");
             }
         }
+        [HttpPost]
+        public IActionResult CancelRental(int rentalId)
+        {
+            using (var connection = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    // İptal edilecek kiralama bilgisini al
+                    var rental = connection.QuerySingleOrDefault<Rental>("SELECT * FROM Rentals WHERE Id = @Id", new { Id = rentalId });
+                    if (rental == null)
+                    {
+                        return NotFound(); // Kiralama bulunamadı
+                    }
 
-        //mail düzenlecek !!
+                    // Aracın durumunu güncelle
+                    var carId = rental.CarId;
+                    connection.Execute("UPDATE Cars SET IsAvailable = 1 WHERE Id = @Id", new { Id = carId });
 
-        public IActionResult SendMail(CustomerLoginModel customer, string subject, string body)
+                    // Kiralama kaydını sil
+                    connection.Execute("DELETE FROM Rentals WHERE Id = @Id", new { Id = rentalId });
+
+                    ViewBag.Message = $"Kiralama ID {rentalId} başarıyla iptal edildi.";
+                }
+                catch (Exception ex)
+                {
+                    ViewBag.ErrorMessage = "İptal işlemi sırasında bir hata oluştu: " + ex.Message;
+                }
+
+                return View("Message");
+            }
+        }
+
+        private string CreateEmailContent(Rental rental, Car car, string customerEmail)
+        {
+            return $"<h1>Kiralanan aracınız : {car.Make} </h1>" +
+                   $"<p>Aracınızın modeli: {car.Model},</p>" +
+                   $"<p>Aracı kiralama tarihiniz: {rental.RentalDate.ToShortDateString()} </p>" +
+                   $"<h2>Aracı Teslim Tarihiniz: {rental.ReturnDate?.ToShortDateString()} </h2>" +
+                   $"<p>Aracı almak istediğiniz yer: {rental.PickupLocation}</p>" +
+                   "<h2>En yakın zamanda görüşmek dileğiyle</h2>" +
+                   "<p>Herhangi bir sorunuz veya geri bildiriminiz olursa bize bildirin.</p>";
+        }
+
+
+        public IActionResult SendMail(Customer customer, string emailContent)
         {
             try
             {
                 var client = new SmtpClient("smtp.eu.mailgun.org", 587)
                 {
-                    Credentials = new NetworkCredential("postmaster@bildirim.muhammetcoskun.com.tr", "bc4babb0ed21f37fe993af60bd8bbd9f-623e10c8-acec0be3"),
+                    Credentials = new NetworkCredential("postmaster@bildirim.nazlisunay.com.tr", "b262ba37e5efc1fbfe2c6df6da8c13ee"),
                     EnableSsl = true
                 };
 
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress("CarRental@bildirim.muhammetcoskun.com.tr", "CarRental.com"),
-                    Subject = subject,
-                    Body = body,
-                    IsBodyHtml = true,
+                    From = new MailAddress("bildirim@carRental.com", "carRental.com"),
+                    Subject = ViewBag.Subject,
+                    Body = ViewBag.Body,
+                    IsBodyHtml = true
                 };
 
-                mailMessage.ReplyToList.Add(customer.Email);
+                mailMessage.ReplyToList.Add(new MailAddress(customer.Email));
                 mailMessage.To.Add(new MailAddress(customer.Email));
 
                 client.Send(mailMessage);
-                return RedirectToAction(ViewBag.Return);
-            }
-            catch (SmtpException smtpEx)
-            {
-                // SMTP hatalarını burada işleyebilirsiniz
-                Console.WriteLine($"SMTP Hatası: {smtpEx.Message}");
-                return View("Error"); // Hata sayfasına yönlendirin
+                return View();
             }
             catch (Exception ex)
             {
-                // Diğer hataları burada işleyebilirsiniz
-                Console.WriteLine($"Hata: {ex.Message}");
-                return View("Error"); // Hata sayfasına yönlendirin
+                // Hata mesajını loglayın veya kullanıcıya gösterin
+                ViewBag.ErrorMessage = ex.Message;
+                return View("Error"); // Hata sayfasına yönlendirebilirsiniz
             }
         }
+
+
 
         private Customer GetCurrentCustomer()
         {
@@ -140,7 +198,7 @@ namespace CarRental.Controllers
 
             if (string.IsNullOrEmpty(customerJson))
             {
-                return null; // Eğer müşteri bilgisi yoksa null döndür
+                return null; 
             }
 
             return JsonConvert.DeserializeObject<Customer>(customerJson);

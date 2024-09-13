@@ -13,26 +13,31 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        @* <th>ID</th> *@
                         <th>Araba ID</th>
                         <th>Müşteri ID</th>
                         <th>Kiralama Tarihi</th>
                         <th>Dönüş Tarihi</th>
                         <th>Toplam Maliyet</th>
                         <th>Teslim Alınacak Konum</th>
+                        <th>İşlem</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var rental in Model)
                     {
                         <tr>
-                            <td>@rental.Id</td>
                             <td>@rental.CarId</td>
                             <td>@rental.CustomerId</td>
                             <td>@rental.RentalDate.ToShortDateString()</td>
-                            <td>@rental.ReturnDate.ToShortDateString()</td>
+                            <td>@rental.ReturnDate?.ToShortDateString()</td>
                             <td>$@rental.TotalCost</td>
                             <td>@rental.PickupLocation</td>
+                            <td>
+                                <form asp-action="CancelRental" asp-route-rentalId="@rental.Id" method="post">
+                                    <button type="submit" class="btn btn-sm btn-danger">İptal Et</button>
+                                </form>
+                            </td>
                         </tr>
                     }
                 </tbody>

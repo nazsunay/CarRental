@@ -26,18 +26,18 @@ namespace CarRental.Controllers
         {
             using var connection = new SqlConnection(connectionString);
 
-            // Araçlarý almak için sorgu
+            
             var carQuery = "SELECT * FROM Cars WHERE Make LIKE @Make";
             var cars = connection.Query<Car>(carQuery, new { Make = $"%{make}%" }).ToList();
 
-            // Araç markalarýný almak için sorgu
+            
             var makeQuery = "SELECT DISTINCT Make FROM Cars";
             var makes = connection.Query<string>(makeQuery).ToList();
 
-            // Araçlarý ve markalarý view'a gönder
+            
             ViewBag.Models = makes;
 
-            return View(cars); // Filtrelenmiþ veya tüm araçlarý döndür
+            return View(cars); 
         }
 
         public IActionResult Details(int id)
@@ -48,7 +48,7 @@ namespace CarRental.Controllers
 
                 if (car == null)
                 {
-                    return NotFound(); // Eðer araba bulunamazsa 404 döndür
+                    return NotFound();
                 }
 
                 return View(car); 

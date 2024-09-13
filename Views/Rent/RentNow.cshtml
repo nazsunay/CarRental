@@ -1,16 +1,17 @@
 ﻿@model Car
 
 
+
+
 <br />
 <br />
 <br />
 <br />
 <br />
-<section id="rental-form" class="container my-5">
+<<section id="rental-form" class="container my-5">
     <h2 class="text-center">Kiralama Bilgileri</h2>
 
-
-     <form asp-action="ConfirmRental" method="post">
+    <form asp-action="ConfirmRental" method="post">
         <input type="hidden" name="carId" value="@Model.Id" />
 
         <div class="mb-3">
@@ -19,8 +20,8 @@
         </div>
 
         <div class="mb-3">
-            <label for="pickupDate" class="form-label">Teslim Alınacak Tarih</label>
-            <input type="datetime-local" class="form-control" id="RentalDate" name="RentalDate" required />
+            <label for="rentalDate" class="form-label">Teslim Alınacak Tarih</label>
+            <input type="datetime-local" class="form-control" id="rentalDate" name="RentalDate" required />
         </div>
 
         <div class="mb-3">
@@ -29,5 +30,10 @@
         </div>
 
         <button type="submit" class="btn btn-success">Kiralama Onayla</button>
-    </form> 
+    </form>
+
+    @if (ViewBag.Message != null)
+    {
+        <div class="alert alert-danger">@ViewBag.Message</div>
+    }
 </section>

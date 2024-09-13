@@ -32,7 +32,7 @@
         public int CarId { get; set; }
         public int CustomerId { get; set; }
         public DateTime RentalDate { get; set; }
-        public DateTime ReturnDate { get; set; }
+        public DateTime? ReturnDate { get; set; }
         public decimal TotalCost { get; set; }
          public string PickupLocation { get; set; }
         public Car Car { get; set; }
