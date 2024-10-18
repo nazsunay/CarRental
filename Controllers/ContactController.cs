@@ -9,7 +9,7 @@ namespace CarRental.Controllers
 {
     public class ContactController : Controller
     {
-        string connectionString = "Server=104.247.162.242\\MSSQLSERVER2019;Initial Catalog=nazlisun_CarRentalDb; User Id=nazlisun_CarRental;Password=Nazli.55?; TrustServerCertificate=True";
+        
 
         public IActionResult Index()
         {
